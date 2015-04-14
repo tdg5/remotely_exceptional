@@ -11,8 +11,7 @@ module RemotelyExceptional::RemoteHandling
     rescue handler
       response_code, result = handler.handle(context)
       case response_code
-      when :raise
-        result ? raise(result) : raise
+      when :raise then result ? raise(result) : raise
       when :retry then retry
       when :continue then result
       else
