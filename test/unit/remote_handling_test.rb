@@ -23,7 +23,7 @@ class RemotelyExceptional::RemoteHandlingTest < RemotelyExceptional::TestCase
 
   context "class that includes #{Subject.name}" do
 
-    context "#with_remote_exception_handling" do
+    context "#remotely_exceptional" do
       subject { TestMixer.new }
 
       setup do
@@ -34,13 +34,13 @@ class RemotelyExceptional::RemoteHandlingTest < RemotelyExceptional::TestCase
 
       should "raise ArgumentError unless a Handler is given" do
         [nil, Class.new, Module.new, :not_a_handler].each do |handler|
-          assert_raises(ArgumentError) { subject.with_remote_exception_handling(handler) }
+          assert_raises(ArgumentError) { subject.remotely_exceptional(handler) }
         end
       end
 
       should "yield to the provided block" do
         block_called = false
-        subject.with_remote_exception_handling(@handler) do
+        subject.remotely_exceptional(@handler) do
           block_called = true
         end
         assert_equal true, block_called
@@ -50,7 +50,7 @@ class RemotelyExceptional::RemoteHandlingTest < RemotelyExceptional::TestCase
         should "raise InvalidHandlerResponse if unrecognized response code" do
           @instance.expects(:handle).returns(:not_a_thing)
           exception = assert_raises(RemotelyExceptional::InvalidHandlerResponse) do
-            subject.with_remote_exception_handling(@handler) do
+            subject.remotely_exceptional(@handler) do
               raise @handler.exception_class
             end
           end
@@ -61,7 +61,7 @@ class RemotelyExceptional::RemoteHandlingTest < RemotelyExceptional::TestCase
           @instance.expects(:handle).returns(:retry)
           already_called = false
           retried = false
-          subject.with_remote_exception_handling(@handler) do
+          subject.remotely_exceptional(@handler) do
             if already_called
               retried = true
             else
@@ -75,7 +75,7 @@ class RemotelyExceptional::RemoteHandlingTest < RemotelyExceptional::TestCase
         should "raise if raise code is given" do
           @instance.expects(:handle).returns(:raise)
           assert_raises(@handler.exception_class) do
-            subject.with_remote_exception_handling(@handler) do
+            subject.remotely_exceptional(@handler) do
               raise @handler.exception_class
             end
           end
@@ -85,7 +85,7 @@ class RemotelyExceptional::RemoteHandlingTest < RemotelyExceptional::TestCase
           exception_class = ArgumentError
           @instance.expects(:handle).returns([:raise, exception_class])
           assert_raises(exception_class) do
-            subject.with_remote_exception_handling(@handler) do
+            subject.remotely_exceptional(@handler) do
               raise @handler.exception_class
             end
           end
@@ -93,7 +93,7 @@ class RemotelyExceptional::RemoteHandlingTest < RemotelyExceptional::TestCase
 
         should "continue if continue code is given" do
           @instance.expects(:handle).returns(:continue)
-          result = subject.with_remote_exception_handling(@handler) do
+          result = subject.remotely_exceptional(@handler) do
             raise @handler.exception_class
           end
           assert_nil result
@@ -102,7 +102,7 @@ class RemotelyExceptional::RemoteHandlingTest < RemotelyExceptional::TestCase
         should "continue and return given value if continue code is given with value" do
           expected_result = 42
           @instance.expects(:handle).returns([:continue, expected_result])
-          result = subject.with_remote_exception_handling(@handler) do
+          result = subject.remotely_exceptional(@handler) do
             raise @handler.exception_class
           end
           assert_equal expected_result, result

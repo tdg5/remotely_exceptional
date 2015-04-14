@@ -1,5 +1,5 @@
 module RemotelyExceptional::RemoteHandling
-  def with_remote_exception_handling(handler, context = {})
+  def remotely_exceptional(handler, context = {})
     raise ArgumentError, "Invalid Handler! Got #{handler.inspect}" unless handler &&
       handler.respond_to?(:ancestors) &&
       handler.ancestors.include?(RemotelyExceptional::Handler)
