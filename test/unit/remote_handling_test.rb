@@ -18,9 +18,6 @@ class RemotelyExceptional::RemoteHandlingTest < RemotelyExceptional::TestCase
     end
   end
 
-  context Subject.name do
-  end
-
   context "class that includes #{Subject.name}" do
 
     context "#remotely_exceptional" do
