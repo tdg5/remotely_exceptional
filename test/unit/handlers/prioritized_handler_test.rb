@@ -12,8 +12,8 @@ class RemotelyExceptional::Handlers::PrioritizedHandlerTest < RemotelyExceptiona
     include Subject
   end
 
-  context Subject.name do
-    subject { Subject }
+  context "module that includes #{Subject.name}" do
+    subject { TestSubject }
 
     setup { subject.reset_handlers! }
 
