@@ -1,4 +1,5 @@
 require "test_helper"
+require "remotely_exceptional/matchers/delegate_matcher"
 
 class RemotelyExceptional::RemoteHandlingTest < RemotelyExceptional::TestCase
   Subject = RemotelyExceptional::RemoteHandling
@@ -8,8 +9,9 @@ class RemotelyExceptional::RemoteHandlingTest < RemotelyExceptional::TestCase
   end
 
   class TestHandler
-    include RemotelyExceptional::Handler
-    def self.matcher
+    include RemotelyExceptional::Matchers::DelegateMatcher
+
+    def self.matcher_delegate
       lambda { |ex| ex.is_a?(exception_class) }
     end
 
