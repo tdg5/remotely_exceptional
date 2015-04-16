@@ -8,6 +8,7 @@ if ENV["CI"]
   end
 end
 
+require "pry"
 require "minitest/autorun"
 require "mocha/setup"
 require "remotely_exceptional"
