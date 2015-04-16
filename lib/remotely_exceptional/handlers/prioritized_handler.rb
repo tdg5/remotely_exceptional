@@ -1,4 +1,7 @@
 module RemotelyExceptional::Handlers::PrioritizedHandler
+  include RemotelyExceptional::Matcher
+  include RemotelyExceptional::Handler
+
   # The default priority that should be used when registering handlers.
   DEFAULT_PRIORITY = 1000.freeze
 

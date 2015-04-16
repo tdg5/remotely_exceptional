@@ -1,15 +1,26 @@
 require "test_helper"
+require "remotely_exceptional/handlers/instance_handler"
 require "remotely_exceptional/handlers/prioritized_handler"
 
 class RemotelyExceptional::Handlers::PrioritizedHandlerTest < RemotelyExceptional::TestCase
   Subject = RemotelyExceptional::Handlers::PrioritizedHandler
-
-  AlphaHandler = RemotelyExceptional::Handler.new { |ex| ArgumentError === ex }
-  BetaHandler = RemotelyExceptional::Handler.new { |ex| RuntimeError === ex }
-  OmegaHandler = RemotelyExceptional::Handler.new { |ex| Exception === ex }
+  InstanceHandler = RemotelyExceptional::Handlers::InstanceHandler
+  AlphaHandler = InstanceHandler.new do
+    self.matcher_delegate = lambda { |ex| ArgumentError === ex }
+  end
+  BetaHandler = InstanceHandler.new do
+    self.matcher_delegate = lambda { |ex| RuntimeError === ex }
+  end
+  OmegaHandler = InstanceHandler.new do
+    self.matcher_delegate = lambda { |ex| Exception === ex }
+  end
 
   class TestSubject
     include Subject
+  end
+
+  class TestRemote
+    include RemotelyExceptional::RemoteHandling
   end
 
   context "module that includes #{Subject.name}" do
@@ -272,6 +283,24 @@ class RemotelyExceptional::Handlers::PrioritizedHandlerTest < RemotelyExceptiona
       end
     end
 
+    context "behavior as a Handler" do
+      should "be a valid Handler" do
+        subject.register_handler(AlphaHandler, :priority => 10)
+        remote = TestRemote.new
+        block_called = false
+        remote.remotely_exceptional(subject) { block_called = true }
+        assert_equal true, block_called
+      end
+    end
+
+    context "instance" do
+      context "#handle" do
+        should "not be defined" do
+          instance = subject.new
+          assert_equal false, instance.respond_to?(:handle)
+        end
+      end
+    end
   end
 
   def setup_registered_handlers(handler)
