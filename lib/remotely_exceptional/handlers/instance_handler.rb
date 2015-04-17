@@ -51,16 +51,17 @@ module RemotelyExceptional::Handlers::InstanceHandler
     # @return [Symbol] Returns a symbol indicating what action should be taken
     #   to continue execution. Depending on the situation, valid values include:
     #   [:continue, :raise, :retry]
-    def handle(exception = $!, context = {})
+    def handle(remote, exception = $!, context = {})
       instance = new
       context, exception = exception, $! if exception.is_a?(Hash)
+      instance.instance_variable_set(:@remote, remote)
       instance.instance_variable_set(:@exception, exception)
       instance.instance_variable_set(:@context, context)
       instance.handle
     end
   end
 
-  attr_reader :context, :exception
+  attr_reader :context, :exception, :remote
 
   # Placeholder method, must be implemented by including class. Should
   # encapsulate the logic required to handle an exception matced by the class.

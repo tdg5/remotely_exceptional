@@ -4,12 +4,10 @@ require "test_helpers/test_handlers"
 class RemotelyExceptional::RemoteHandlingTest < RemotelyExceptional::TestCase
   Subject = RemotelyExceptional::RemoteHandling
 
+  TestHandler = RemotelyExceptional::Test::BasicExceptionHandler
   class TestMixer
     include Subject
   end
-
-  TestHandler = RemotelyExceptional::Test::BasicExceptionHandler
-
 
   context "class that includes #{Subject.name}" do
     context "instance" do
