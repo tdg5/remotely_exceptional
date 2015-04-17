@@ -19,6 +19,7 @@ module RemotelyExceptional::RemoteHandling
   #   provided by the exception handler's handle method. If the handler's handle
   #   method does not specify a result, nil will be returned instead.
   def remotely_exceptional(handler, context = {})
+    raise ArgumentError, "Block required!" unless block_given?
     raise ArgumentError, "Invalid Handler! Got #{handler.inspect}" unless handler &&
       handler.respond_to?(:ancestors) &&
       handler.ancestors.include?(RemotelyExceptional::Handler)

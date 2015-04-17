@@ -33,9 +33,13 @@ class RemotelyExceptional::RemoteHandlingTest < RemotelyExceptional::TestCase
         @handler.stubs(:new).returns(@instance)
       end
 
+      should "raise ArgumentError unless a block is given" do
+        assert_raises(ArgumentError) { subject.remotely_exceptional(@handler) }
+      end
+
       should "raise ArgumentError unless a Handler is given" do
         [nil, Class.new, Module.new, :not_a_handler].each do |handler|
-          assert_raises(ArgumentError) { subject.remotely_exceptional(handler) }
+          assert_raises(ArgumentError) { subject.remotely_exceptional(handler) { } }
         end
       end
 
