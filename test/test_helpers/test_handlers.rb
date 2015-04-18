@@ -14,5 +14,8 @@ module RemotelyExceptional::Test
       end
     end
     self.exception_class = RuntimeError
+
+    def handle(*)
+    end
   end
 end
