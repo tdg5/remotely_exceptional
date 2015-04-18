@@ -1,9 +1,9 @@
 require "test_helper"
-require "remotely_exceptional/matchers/delegate_matcher"
+require "remotely_exceptional/matcher/delegate_matcher"
 
-module RemotelyExceptional::Matchers
+module RemotelyExceptional::Matcher
   class DelegateMatcherTest < RemotelyExceptional::TestCase
-    Subject = RemotelyExceptional::Matchers::DelegateMatcher
+    Subject = RemotelyExceptional::Matcher::DelegateMatcher
 
     class TestIncluder
       include Subject

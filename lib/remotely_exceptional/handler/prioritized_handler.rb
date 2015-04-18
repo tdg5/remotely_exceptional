@@ -1,4 +1,4 @@
-module RemotelyExceptional::Handlers::PrioritizedHandler
+module RemotelyExceptional::Handler::PrioritizedHandler
   include RemotelyExceptional::Matcher
   include RemotelyExceptional::Handler
 

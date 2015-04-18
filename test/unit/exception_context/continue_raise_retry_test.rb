@@ -1,8 +1,8 @@
 require "test_helper"
 require "test_helpers/test_handlers"
-require "remotely_exceptional/exception_contexts/continue_raise_retry"
+require "remotely_exceptional/exception_context/continue_raise_retry"
 
-module RemotelyExceptional::ExceptionContexts
+module RemotelyExceptional::ExceptionContext
   class ContinueRaiseRetryTest < RemotelyExceptional::TestCase
     Subject = ContinueRaiseRetry
 

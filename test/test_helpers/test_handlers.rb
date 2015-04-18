@@ -1,10 +1,10 @@
-require "remotely_exceptional/matchers/delegate_matcher"
-require "remotely_exceptional/handlers/instance_handler"
+require "remotely_exceptional/matcher/delegate_matcher"
+require "remotely_exceptional/handler/instance_handler"
 
 module RemotelyExceptional::Test
   class BasicExceptionHandler
-    include RemotelyExceptional::Matchers::DelegateMatcher
-    include RemotelyExceptional::Handlers::InstanceHandler
+    include RemotelyExceptional::Matcher::DelegateMatcher
+    include RemotelyExceptional::Handler::InstanceHandler
 
     class << self
       attr_accessor :exception_class

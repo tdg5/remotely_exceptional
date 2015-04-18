@@ -1,4 +1,4 @@
-module RemotelyExceptional::ExceptionContexts
+module RemotelyExceptional::ExceptionContext
   module ContinueRaiseRetry
     def self.context_exec(handler, context = {})
       raise ArgumentError, "Block required!" unless block_given?

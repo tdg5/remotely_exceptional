@@ -1,11 +1,11 @@
 require "test_helper"
 require "test_helpers/test_remote_exceptions"
-require "remotely_exceptional/handlers/instance_handler"
-require "remotely_exceptional/handlers/prioritized_handler"
+require "remotely_exceptional/handler/instance_handler"
+require "remotely_exceptional/handler/prioritized_handler"
 
-class RemotelyExceptional::Handlers::PrioritizedHandlerTest < RemotelyExceptional::TestCase
-  Subject = RemotelyExceptional::Handlers::PrioritizedHandler
-  InstanceHandler = RemotelyExceptional::Handlers::InstanceHandler
+class RemotelyExceptional::Handler::PrioritizedHandlerTest < RemotelyExceptional::TestCase
+  Subject = RemotelyExceptional::Handler::PrioritizedHandler
+  InstanceHandler = RemotelyExceptional::Handler::InstanceHandler
   AlphaHandler = InstanceHandler.new do
     self.matcher_delegate = lambda { |ex| ArgumentError === ex }
 

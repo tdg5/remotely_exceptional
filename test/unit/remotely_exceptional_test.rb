@@ -3,11 +3,18 @@ require "test_helper"
 class RemotelyExceptionalTest < RemotelyExceptional::TestCase
   Subject = RemotelyExceptional
 
-  subject { Subject }
+  [
+    Subject,
+    Subject::ExceptionContext,
+    Subject::Handler,
+    Subject::Matcher,
+  ].each do |mod|
+    context mod.name do
+      subject { mod }
 
-  context Subject.name do
-    should "be defined" do
-      assert defined?(subject), "Expected #{subject.name} to be defined!"
+      should "be defined" do
+        assert_kind_of Module, subject
+      end
     end
   end
 end

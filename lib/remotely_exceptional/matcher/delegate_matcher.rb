@@ -1,4 +1,4 @@
-module RemotelyExceptional::Matchers
+module RemotelyExceptional::Matcher
   # A mixin that adds Matcher behaviors that simply wrap another object. Calls
   # to determine equality are delegated to the wrapped object.
   module DelegateMatcher

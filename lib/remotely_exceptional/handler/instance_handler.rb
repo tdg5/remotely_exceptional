@@ -1,9 +1,9 @@
-require "remotely_exceptional/matchers/delegate_matcher"
+require "remotely_exceptional/matcher/delegate_matcher"
 
 # Mixin providing basic functionality required for matching and handling
 # exceptions where exceptions are handled using instances of the class.
-module RemotelyExceptional::Handlers::InstanceHandler
-  include RemotelyExceptional::Matchers::DelegateMatcher
+module RemotelyExceptional::Handler::InstanceHandler
+  include RemotelyExceptional::Matcher::DelegateMatcher
   include RemotelyExceptional::Handler
 
   # Actions that will be taken on any object that includes this module.
@@ -13,7 +13,7 @@ module RemotelyExceptional::Handlers::InstanceHandler
   def self.included(includer)
     includer.instance_eval do
       include RemotelyExceptional::Handler
-      include RemotelyExceptional::Matchers::DelegateMatcher
+      include RemotelyExceptional::Matcher::DelegateMatcher
       extend ClassMethods
     end
   end
