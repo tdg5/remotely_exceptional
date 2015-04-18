@@ -40,42 +40,25 @@ module RemotelyExceptional::Handlers::InstanceHandler
   # Class-level handler behaviors that will be added to any object that includes
   # this module.
   module ClassMethods
-    # Factory method that takes in an exception and an optional Hash of
-    # additional contextual information and creates a new Handler instance from
-    # that data. The generated Handler instance is then used to handle the the
-    # exception.
+    # Factory method that takes in a remote exception and creates a new Handler
+    # instance from that exception. The generated Handler instance is then used to
+    # handle the the exception.
     #
-    # @param exception [Exception] The exception to handle. Defaults to $!.
-    # @param context [Hash{Symbol=>Object}] An optional Hash of additional
-    #   contextual information about the exception.
-    # @return [Symbol] Returns a symbol indicating what action should be taken
-    #   to continue execution. Depending on the situation, valid values include:
-    #   [:continue, :raise, :retry]
-    def handle(exception = $!, context = {})
-      instance = new
-      context, exception = exception, $! if exception.is_a?(Hash)
-      instance.instance_variable_set(:@exception, exception)
-      instance.instance_variable_set(:@context, context)
-      instance.handle
+    # @param remote_exception [RemotelyExceptional::RemoteException] The
+    #   remote exception to handle.
+    # @return [void]
+    def handle(remote_exception)
+      new.handle(remote_exception)
     end
   end
 
-  attr_reader :context, :exception
-
   # Placeholder method, must be implemented by including class. Should
-  # encapsulate the logic required to handle an exception matced by the class.
-  # Should take no arguments.
+  # encapsulate the logic required to handle a remote exception matced by the
+  # class.
   #
   # @raise [NotImplementedError] Raised when the including class does not
   #   provide it's own #handle instance method.
-  # @return [Symbol] Returns a symbol indicating what action should be taken
-  #   to continue execution. Depending on the situation, valid values include:
-  #   [:continue, :raise, :retry]
-  # @return [Array<(Symbol, Object)>] Returns a symbol indicating what action
-  #   should be taken to continue execution and an object that should be used as
-  #   the result of the rescue operation. Depending on the situation, valid
-  #   action values include: [:continue, :raise, :retry]
-  def handle
+  def handle(remote_exception)
     raise NotImplementedError, "#{__method__} must be implemented by including class!"
   end
 end

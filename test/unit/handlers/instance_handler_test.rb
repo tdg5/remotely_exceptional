@@ -1,9 +1,12 @@
 require "test_helper"
+require "test_helpers/test_remote_exceptions"
 require "remotely_exceptional/handlers/instance_handler"
+require "remotely_exceptional/exception_contexts/continue_raise_retry"
 
 module RemotelyExceptional::Handlers
   class InstanceHandlerTest < RemotelyExceptional::TestCase
     Subject = InstanceHandler
+    RemoteException = RemotelyExceptional::Test::BasicRemoteException
 
     class TestMixer
       include Subject
@@ -58,42 +61,14 @@ module RemotelyExceptional::Handlers
 
         context "::handle" do
           setup do
-            @exception = ArgumentError.new
-            @context = { :context => true }
+            @remote_exception = RemoteException.new
             @instance = subject.new
             subject.expects(:new).at_least(1).returns(@instance)
           end
 
           should "create a new instance and invoke #handle" do
-            @instance.expects(:handle)
-            subject.handle(@exception, @context)
-          end
-
-          should "set the exception and context of the instance correctly" do
-            @instance.stubs(:handle)
-            subject.handle(@exception, @context)
-            assert_equal @exception, @instance.exception
-            assert_equal @context, @instance.context
-          end
-
-          should "should automatically detect exception if not provided in an exception context" do
-            @instance.stubs(:handle)
-            begin
-              raise @exception
-            rescue
-              subject.handle(@context)
-            end
-            # Should be the exception in an exception context
-            assert_equal @context, @instance.context
-            assert_equal @exception, @instance.exception
-          end
-
-          should "have a nil exception when not provided an exception outside of an exception context" do
-            @instance.stubs(:handle)
-            subject.handle(@context)
-            assert_equal @context, @instance.context
-            # Should be nil outside of an exception context
-            assert_nil @instance.exception
+            @instance.expects(:handle).with(@remote_exception)
+            subject.handle(@remote_exception)
           end
         end
 
@@ -131,7 +106,7 @@ module RemotelyExceptional::Handlers
 
         context "#handle" do
           should "raise NotImplementedError if not overriden" do
-            assert_raises(NotImplementedError) { subject.new.handle }
+            assert_raises(NotImplementedError) { subject.new.handle(@remote_exception) }
           end
         end
       end

@@ -1,4 +1,5 @@
 require "test_helper"
+require "test_helpers/test_remote_exceptions"
 require "remotely_exceptional/handlers/instance_handler"
 require "remotely_exceptional/handlers/prioritized_handler"
 
@@ -7,13 +8,30 @@ class RemotelyExceptional::Handlers::PrioritizedHandlerTest < RemotelyExceptiona
   InstanceHandler = RemotelyExceptional::Handlers::InstanceHandler
   AlphaHandler = InstanceHandler.new do
     self.matcher_delegate = lambda { |ex| ArgumentError === ex }
+
+    def self.action
+      :retry
+    end
+
+    def handle(remote_exception)
+      remote_exception.send(self.class.action)
+    end
   end
   BetaHandler = InstanceHandler.new do
-    self.matcher_delegate = lambda { |ex| RuntimeError === ex }
+    self.matcher_delegate = lambda { |ex| StandardError === ex }
   end
   OmegaHandler = InstanceHandler.new do
     self.matcher_delegate = lambda { |ex| Exception === ex }
+
+    def self.action
+      :raise
+    end
+
+    def handle(remote_exception)
+      remote_exception.send(self.class.action)
+    end
   end
+  RemoteException = RemotelyExceptional::Test::BasicRemoteException
 
   class TestSubject
     include Subject
@@ -47,38 +65,50 @@ class RemotelyExceptional::Handlers::PrioritizedHandlerTest < RemotelyExceptiona
     end
 
     context "::handle" do
-      should "delegate handling to the matching handler with the highest priority" do
+      should "delegate handling to matching handlers while no action is decided" do
+        handler_sequence = sequence(:handler_order)
         subject.register_handler(AlphaHandler)
         subject.register_handler(OmegaHandler, :priority => 10)
-        ex = ArgumentError.new
-        result = :continue
-        context = { :context => :foo }
-        OmegaHandler.expects(:handle).with(ex, context).returns(result)
-        assert_equal result, subject.handle(ex, context)
+        remote_exception = RemoteException.new(:exception => ArgumentError.new)
+        OmegaHandler.expects(:handle).with(remote_exception).in_sequence(handler_sequence)
+        AlphaHandler.expects(:handle).with(remote_exception).in_sequence(handler_sequence)
+        subject.handle(remote_exception)
+        # should leave action unchanged since handle does nothing in both cases
+        assert_equal nil, remote_exception.action
       end
 
-      should "re-raise the exception if no matching handler is found" do
-        ex = ArgumentError.new
-        assert_raises(ex.class) { subject.handle(ex) }
+      should "should discontinue handling after an action has been decided" do
+        subject.register_handler(AlphaHandler)
+        subject.register_handler(OmegaHandler, :priority => 10)
+        remote_exception = RemoteException.new(:exception => ArgumentError.new)
+        AlphaHandler.expects(:handle).never
+        subject.handle(remote_exception)
+        assert_equal OmegaHandler.action, remote_exception.action
       end
     end
 
-    context "::handler_for_exception" do
-      should "return the matching handler" do
+    context "::handlers_for_exception" do
+      should "return all matching handlers" do
         subject.register_handler(AlphaHandler)
-        assert_equal AlphaHandler, subject.handler_for_exception(ArgumentError.new)
+        subject.register_handler(OmegaHandler)
+        expected_handlers = [AlphaHandler, OmegaHandler]
+        result_handlers = subject.handlers_for_exception(ArgumentError.new)
+        assert_equal expected_handlers, result_handlers
       end
 
-      should "return the matching handler with the highest priority" do
+      should "return the matching handlers in priority ASC, name ASC order" do
+        subject.register_handler(BetaHandler)
         subject.register_handler(AlphaHandler)
         subject.register_handler(OmegaHandler, :priority => 10)
-        assert_equal OmegaHandler, subject.handler_for_exception(ArgumentError.new)
+        result_handlers = subject.handlers_for_exception(ArgumentError.new)
+        expected_handlers = [OmegaHandler, AlphaHandler, BetaHandler]
+        assert_equal expected_handlers, result_handlers
       end
 
-      should "return nil if no matching handler is found" do
+      should "return an empty Array if no matching handler is found" do
         subject.register_handler(AlphaHandler)
         subject.register_handler(BetaHandler)
-        assert_nil subject.handler_for_exception(SystemStackError.new)
+        assert_equal [], subject.handlers_for_exception(SystemStackError.new)
       end
     end
 

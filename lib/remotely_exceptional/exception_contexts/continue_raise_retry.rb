@@ -10,15 +10,19 @@ module RemotelyExceptional::ExceptionContexts
       # a Class or Module. We can raise a more specific error if begin is used.
       begin
         yield
-      rescue handler
-        response_code, result = handler.handle(context)
-        case response_code
-        when :raise then result ? raise(result) : raise
-        when :retry then retry
-        when :continue then result
-        else
-          msg = "Handler did not return an expected response code!"
-          raise RemotelyExceptional::InvalidHandlerResponse, msg
+      rescue handler => ex
+        remote_exception = RemotelyExceptional::RemoteException.new({
+          :context => context,
+          :exception => ex,
+        })
+        # Yield the exception to the handler so it can determine the appropriate
+        # action to take. Then act.
+        handler.handle(remote_exception)
+        case remote_exception.action
+          when :continue then remote_exception.continue_value
+          when :retry then retry
+          when :raise then raise remote_exception.raise_exception || ex
+          else raise
         end
       end
     end

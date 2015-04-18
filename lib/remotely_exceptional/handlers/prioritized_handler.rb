@@ -21,7 +21,7 @@ module RemotelyExceptional::Handlers::PrioritizedHandler
     #   given exception. Returns false if none of the available handlers match the
     #   given exception.
     def ===(exception)
-      !!handler_for_exception(exception)
+      handlers_for_exception(exception).any?
     end
 
     # Returns the Hash of block handlers by priority.
@@ -40,35 +40,31 @@ module RemotelyExceptional::Handlers::PrioritizedHandler
       const_get(:DEFAULT_PRIORITY)
     end
 
-    # Finds the handler with the highest priority that matches the exception and
-    # uses this handler to handle the exception. If no handlers are available that
-    # match the given exception, the exception is re-raised.
+    # Finds all handlers that match the given remote exception and and attempts
+    # to handle the exception trying one handler at a time in (priority ASC,
+    # name ASC) order. Once an action has been decided for the given remote
+    # exception, execution of additional handlers is short-circuited and no more
+    # handlers will be executed.
     #
-    # @param exception [Exception] The exception to handle.
-    # @param context [Hash{Symbol=>Object}] An optional Hash of additional
-    #   contextual information about the exception.
-    # @raise [exception] The given exception is reraised if no handler is found
-    #   that matches the given exception.
-    # @return [Symbol] Returns a symbol indicating what action should be taken
-    #   to continue execution. Depending on the situation, valid values include:
-    #   [:continue, :raise, :retry]
-    def handle(exception = $!, context = {})
-      context, exception = exception, $! if exception.is_a?(Hash)
-      priority_handler = handler_for_exception(exception)
-      raise exception if !priority_handler
-      priority_handler.handle(exception, context)
+    # @param remote_exception [RemotelyExceptional::RemoteException] The
+    #   remote exception to handle.
+    # @return [void]
+    def handle(remote_exception)
+      handlers_for_exception(remote_exception.exception).each do |handler|
+        handler.handle(remote_exception)
+        break if remote_exception.action?
+      end
     end
 
-    # Finds the handler with the highest priority that matches the given
-    # exception. Returns nil if no matching handler can be found.
+    # Returns all handlers that match the given exception in priority order.
+    # exception. Returns an empty Array if no handlers were found.
     #
-    # @param exception [Exception] The exception to find a matching handler for.
-    # @return [RemotelyExceptional::Handler] Returns the handler with the
-    #   highest priority that matches the given exception. If no handler is found,
-    #   returns nil.
-    # @return [nil] Returns nil if no matching handler could be found.
-    def handler_for_exception(exception)
-      prioritized_handlers.detect { |handler| handler === exception }
+    # @param exception [Exception] The exception to find matching handlers for.
+    # @return [Array<RemotelyExceptional::Handler>] Returns an Array of handlers
+    #   that match the given exception in priority ASC, name ASC order. If no
+    #   handlers are found, returns an empty Array.
+    def handlers_for_exception(exception)
+      prioritized_handlers.select { |handler| handler === exception }
     end
 
     # Returns an enumerator that yields block handlers and registered handlers in
