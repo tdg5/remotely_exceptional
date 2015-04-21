@@ -1,6 +1,15 @@
-module RemotelyExceptional::ExceptionContext
-  module ContinueRaiseRetry
-    def self.context_exec(handler, context = {})
+module RemotelyExceptional
+  # An ExceptionContext is a template code block that allows for executing code
+  # with remote exception handling.
+  module ExceptionContext
+    # Execute the given code block within a special context that allows for
+    # remote handling of exceptions.
+    #
+    # @param handler [Object] A handler object that responds to :=== and
+    #   :handle.
+    # @param context [Hash] A Hash of contextual information that is made
+    #   available to the exception handler.
+    def self.execute(handler, context = {})
       raise ArgumentError, "Block required!" unless block_given?
       raise ArgumentError, "Invalid Handler! Got #{handler.inspect}" unless handler &&
         handler.respond_to?(:ancestors) &&
@@ -11,7 +20,7 @@ module RemotelyExceptional::ExceptionContext
       begin
         yield
       rescue handler => ex
-        remote_exception = RemotelyExceptional::RemoteException.new({
+        remote_exception = RemoteException.new({
           :context => context,
           :exception => ex,
         })

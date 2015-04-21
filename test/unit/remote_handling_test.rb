@@ -14,9 +14,9 @@ class RemotelyExceptional::RemoteHandlingTest < RemotelyExceptional::TestCase
       subject { TestMixer.new }
 
       context "#remotely_exceptional" do
-        should "delegate call to ContinueRaiseRetry.context_exec" do
-          exception_context = RemotelyExceptional::ExceptionContext::ContinueRaiseRetry
-          exception_context.expects(:context_exec).with(TestHandler)
+        should "delegate call to ExceptionContext.execute" do
+          exception_context = RemotelyExceptional::ExceptionContext
+          exception_context.expects(:execute).with(TestHandler)
           subject.remotely_exceptional(TestHandler) { }
         end
       end

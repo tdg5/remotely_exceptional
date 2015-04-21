@@ -1,7 +1,6 @@
 require "test_helper"
 require "test_helpers/test_remote_exceptions"
 require "remotely_exceptional/handler/instance_handler"
-require "remotely_exceptional/exception_context/continue_raise_retry"
 
 module RemotelyExceptional::Handler
   class InstanceHandlerTest < RemotelyExceptional::TestCase
