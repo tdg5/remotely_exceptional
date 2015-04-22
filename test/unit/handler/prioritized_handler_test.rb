@@ -17,9 +17,11 @@ class RemotelyExceptional::Handler::PrioritizedHandlerTest < RemotelyExceptional
       remote_exception.send(self.class.action)
     end
   end
+
   BetaHandler = InstanceHandler.new do
     self.matcher_delegate = lambda { |ex| StandardError === ex }
   end
+
   OmegaHandler = InstanceHandler.new do
     self.matcher_delegate = lambda { |ex| Exception === ex }
 
@@ -31,6 +33,7 @@ class RemotelyExceptional::Handler::PrioritizedHandlerTest < RemotelyExceptional
       remote_exception.send(self.class.action)
     end
   end
+
   RemoteException = RemotelyExceptional::Test::BasicRemoteException
 
   class TestSubject
@@ -45,6 +48,16 @@ class RemotelyExceptional::Handler::PrioritizedHandlerTest < RemotelyExceptional
     subject { TestSubject }
 
     setup { subject.reset_handlers! }
+
+    context "ancestry" do
+      should "be a RemotelyExceptional::Handler" do
+        assert_includes subject.ancestors, RemotelyExceptional::Handler
+      end
+
+      should "be a RemotelyExceptional::Matcher" do
+        assert_includes subject.ancestors, RemotelyExceptional::Matcher
+      end
+    end
 
     context "::===" do
       should "return true if a handler is registered that matches the exception" do

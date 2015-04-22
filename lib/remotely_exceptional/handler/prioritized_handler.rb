@@ -86,8 +86,11 @@ module RemotelyExceptional::Handler::PrioritizedHandler
           end
           if block_handlers.key?(priority)
             temp_handlers = block_handlers[priority].to_a
-            collected_handlers &&= collected_handlers.concat(temp_handlers)
-            collected_handlers ||= temp_handlers
+            if collected_handlers
+              collected_handlers.concat(temp_handlers)
+            else
+              collected_handlers = temp_handlers
+            end
           end
           collected_handlers.sort_by!(&:name)
           collected_handlers.uniq!
