@@ -5,8 +5,6 @@ class RemotelyExceptionalTest < RemotelyExceptional::TestCase
 
   [
     Subject,
-    Subject::Handler,
-    Subject::Matcher,
   ].each do |mod|
     context mod.name do
       subject { mod }

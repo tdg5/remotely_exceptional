@@ -25,12 +25,6 @@ module RemotelyExceptional
           assert_raises(ArgumentError) { subject.execute(@handler) }
         end
 
-        should "raise ArgumentError unless a Handler is given" do
-          [nil, Class.new, Module.new, :not_a_handler].each do |handler|
-            assert_raises(ArgumentError) { subject.execute(handler) { } }
-          end
-        end
-
         should "yield to the provided block" do
           block_called = false
           subject.execute(@handler_class) do
@@ -121,7 +115,6 @@ module RemotelyExceptional
 
         should "not report retry success to handler that does not support it" do
           retried = false
-          @handler_class.expects(:respond_to?).with(:ancestors).returns(true)
           @handler_class.expects(:respond_to?).with(:report_retry_success).returns(false)
           @handler_class.expects(:report_retry_success).never
           subject.execute(@handler_class) do

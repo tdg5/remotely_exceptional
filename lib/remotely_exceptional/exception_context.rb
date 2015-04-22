@@ -11,9 +11,6 @@ module RemotelyExceptional
     #   available to the exception handler.
     def self.execute(handler, context = {})
       raise ArgumentError, "Block required!" unless block_given?
-      raise ArgumentError, "Invalid Handler! Got #{handler.inspect}" unless handler &&
-        handler.respond_to?(:ancestors) &&
-        handler.ancestors.include?(RemotelyExceptional::Handler)
 
       remote_exception = nil
       report_retry_success = false

@@ -1,16 +1,14 @@
-require "remotely_exceptional/matcher/delegate_matcher"
-require "remotely_exceptional/handler/instance_handler"
-
 module RemotelyExceptional::Test
   class BasicExceptionHandler
-    include RemotelyExceptional::Matcher::DelegateMatcher
-    include RemotelyExceptional::Handler::InstanceHandler
-
     class << self
       attr_accessor :exception_class
 
-      def matcher_delegate
-        lambda { |ex| ex.is_a?(exception_class) }
+      def ===(exception)
+        (lambda { |ex| ex.is_a?(exception_class) }) === exception
+      end
+
+      def handle(*args)
+        new(*args).handle
       end
     end
     self.exception_class = RuntimeError
