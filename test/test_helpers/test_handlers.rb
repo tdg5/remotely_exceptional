@@ -17,5 +17,8 @@ module RemotelyExceptional::Test
 
     def handle(*)
     end
+
+    def report_retry_success(*)
+    end
   end
 end

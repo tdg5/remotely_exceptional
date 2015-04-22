@@ -43,13 +43,10 @@ module RemotelyExceptional
           should "retry if retry code is given" do
             @remote_exception.expects(:action).returns(:retry)
 
-            already_called = false
             retried = false
             subject.execute(@handler_class) do
-              if already_called
+              if !retried
                 retried = true
-              else
-                already_called = true
                 raise @handler_class.exception_class
               end
             end
@@ -106,6 +103,52 @@ module RemotelyExceptional
             end
             assert_equal expected_result, result
           end
+        end
+
+        should "report retry success to handler if retry succeeds" do
+          @remote_exception.expects(:action).returns(:retry)
+
+          retried = false
+          @handler_class.expects(:report_retry_success).with(@remote_exception)
+          subject.execute(@handler_class) do
+            if !retried
+              retried = true
+              raise @handler_class.exception_class
+            end
+          end
+          assert_equal true, retried
+        end
+
+        should "not report retry success to handler that does not support it" do
+          retried = false
+          @handler_class.expects(:respond_to?).with(:ancestors).returns(true)
+          @handler_class.expects(:respond_to?).with(:report_retry_success).returns(false)
+          @handler_class.expects(:report_retry_success).never
+          subject.execute(@handler_class) do
+            if retried
+              @remote_exception.expects(:action).returns(:continue)
+            else
+              @remote_exception.expects(:action).returns(:retry)
+              retried = true
+            end
+            raise @handler_class.exception_class
+          end
+          assert_equal true, retried
+        end
+
+        should "not report retry success to handler if retry fails and other action taken" do
+          retried = false
+          @handler_class.expects(:report_retry_success).never
+          subject.execute(@handler_class) do
+            if retried
+              @remote_exception.expects(:action).returns(:continue)
+            else
+              @remote_exception.expects(:action).returns(:retry)
+              retried = true
+            end
+            raise @handler_class.exception_class
+          end
+          assert_equal true, retried
         end
       end
     end

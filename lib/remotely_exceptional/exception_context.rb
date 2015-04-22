@@ -15,10 +15,15 @@ module RemotelyExceptional
         handler.respond_to?(:ancestors) &&
         handler.ancestors.include?(RemotelyExceptional::Handler)
 
+      remote_exception = nil
+      report_retry_success = false
+
       # Must explicitly use begin otherwise TypeError will occur if handler is not
       # a Class or Module. We can raise a more specific error if begin is used.
       begin
-        yield
+        result = yield
+        handler.report_retry_success(remote_exception) if report_retry_success
+        result
       rescue handler => ex
         remote_exception = RemoteException.new({
           :context => context,
@@ -29,7 +34,9 @@ module RemotelyExceptional
         handler.handle(remote_exception)
         case remote_exception.action
           when :continue then remote_exception.continue_value
-          when :retry then retry
+          when :retry
+            report_retry_success = handler.respond_to?(:report_retry_success)
+            retry
           when :raise then raise remote_exception.raise_exception || ex
           else raise
         end
