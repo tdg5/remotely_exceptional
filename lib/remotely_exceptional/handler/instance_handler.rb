@@ -49,6 +49,7 @@ module RemotelyExceptional::Handler::InstanceHandler
     # @return [void]
     def handle(remote_exception)
       new.handle(remote_exception)
+      nil
     end
   end
 

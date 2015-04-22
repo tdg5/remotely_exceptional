@@ -54,6 +54,7 @@ module RemotelyExceptional::Handler::PrioritizedHandler
         handler.handle(remote_exception)
         break if remote_exception.action?
       end
+      nil
     end
 
     # Returns all handlers that match the given exception in priority order.
