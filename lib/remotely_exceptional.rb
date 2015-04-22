@@ -1,4 +1,3 @@
-require "remotely_exceptional/version"
 require "remotely_exceptional/exception_context"
 require "remotely_exceptional/remote_exception"
 require "remotely_exceptional/remote_handling"
