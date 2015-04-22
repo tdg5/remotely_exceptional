@@ -37,13 +37,6 @@ module RemotelyExceptional
           end
         end
 
-        context "#available_actions" do
-          should "return the expected values" do
-            expected_actions = [:continue, :raise, :retry]
-            assert_equal expected_actions, subject.available_actions
-          end
-        end
-
         context "#continue" do
           should "set the continue_value to the given value" do
             expected_result = :expected_value

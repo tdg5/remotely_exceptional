@@ -1,7 +1,5 @@
 module RemotelyExceptional
   class RemoteException
-    AVAILABLE_ACTIONS = [:continue, :raise, :retry].freeze
-
     attr_reader :action, :context, :continue_value, :exception, :raise_exception
 
     def initialize(options = {})
@@ -11,10 +9,6 @@ module RemotelyExceptional
 
     def action?
       !!@action
-    end
-
-    def available_actions
-      self.class.const_get(:AVAILABLE_ACTIONS).dup
     end
 
     def continue(continue_value = nil)
