@@ -1,10 +1,10 @@
 require "test_helper"
-require "test_helpers/test_handlers"
+require "test_helpers/test_strategies"
 
 class RemotelyExceptional::RemoteHandlingTest < RemotelyExceptional::TestCase
   Subject = RemotelyExceptional::RemoteHandling
 
-  TestHandler = RemotelyExceptional::Test::BasicExceptionHandler
+  TestStrategy = RemotelyExceptional::Test::BasicStrategy
   class TestMixer
     include Subject
   end
@@ -16,8 +16,8 @@ class RemotelyExceptional::RemoteHandlingTest < RemotelyExceptional::TestCase
       context "#remotely_exceptional" do
         should "delegate call to ExceptionContext.execute" do
           exception_context = RemotelyExceptional::ExceptionContext
-          exception_context.expects(:execute).with(TestHandler)
-          subject.remotely_exceptional(TestHandler) { }
+          exception_context.expects(:execute).with(TestStrategy)
+          subject.remotely_exceptional(TestStrategy) { }
         end
       end
     end

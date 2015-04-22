@@ -1,10 +1,14 @@
 module RemotelyExceptional::Test
-  class BasicExceptionHandler
+  class BasicStrategy
     class << self
       attr_accessor :exception_class
 
       def ===(exception)
-        (lambda { |ex| ex.is_a?(exception_class) }) === exception
+        matcher === exception
+      end
+
+      def matcher
+        lambda { |ex| ex.is_a?(exception_class) }
       end
 
       def handle(*args)
