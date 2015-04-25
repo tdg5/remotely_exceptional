@@ -3,8 +3,8 @@ module RemotelyExceptional
     attr_reader :action, :context, :continue_value, :exception, :raise_exception
 
     def initialize(options = {})
-      @context = options[:context]
-      @exception = options[:exception]
+      @context = options[:context] || {}
+      @exception = options[:exception] || $!
     end
 
     def action?

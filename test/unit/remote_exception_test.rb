@@ -24,6 +24,19 @@ module RemotelyExceptional
               end
             end
           end
+
+          should "default context to an empty Hash" do
+            assert_equal({}, subject.context)
+          end
+
+          should "default exception to the current exception" do
+            exception = ArgumentError.new
+            begin
+              raise exception
+            rescue
+              assert_equal exception, subject.exception
+            end
+          end
         end
 
         context "#action?" do
