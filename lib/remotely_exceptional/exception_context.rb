@@ -13,13 +13,14 @@ module RemotelyExceptional
       raise ArgumentError, "Block required!" unless block_given?
 
       remote_exception = nil
-      report_retry_success = false
 
       # Must explicitly use begin otherwise TypeError will occur if strategy is not
       # a Class or Module. We can raise a more specific error if begin is used.
       begin
         result = yield
-        strategy.report_retry_success(remote_exception) if report_retry_success
+        if remote_exception && strategy.respond_to?(:report_retry_success)
+          strategy.report_retry_success(remote_exception)
+        end
         result
       rescue strategy => ex
         remote_exception = RemoteException.new({
@@ -30,11 +31,12 @@ module RemotelyExceptional
         # action to take. Then act.
         strategy.handle(remote_exception)
         case remote_exception.action
-          when :continue then remote_exception.continue_value
+          when :continue
+            remote_exception.continue_value
           when :retry
-            report_retry_success = strategy.respond_to?(:report_retry_success)
             retry
-          when :raise then raise remote_exception.raise_exception || ex
+          when :raise
+            raise(remote_exception.raise_exception || ex)
           else raise
         end
       end

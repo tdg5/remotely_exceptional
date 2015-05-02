@@ -118,13 +118,11 @@ module RemotelyExceptional
           @strategy_class.expects(:respond_to?).with(:report_retry_success).returns(false)
           @strategy_class.expects(:report_retry_success).never
           subject.execute(@strategy_class) do
-            if retried
-              @remote_exception.expects(:action).returns(:continue)
-            else
+            if !retried
               @remote_exception.expects(:action).returns(:retry)
               retried = true
+              raise @strategy_class.exception_class
             end
-            raise @strategy_class.exception_class
           end
           assert_equal true, retried
         end
