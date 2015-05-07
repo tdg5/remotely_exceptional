@@ -1,0 +1,4 @@
+module MinitestBenchmarkTests
+end
+
+require "minitest_benchmark_tests/relative_performance_test_case"
